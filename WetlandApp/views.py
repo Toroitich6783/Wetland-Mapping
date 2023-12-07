@@ -1402,3 +1402,93 @@ class Wetlands(TemplateView):
         context['form'] = form
         return render(request, self.template_name, context)
 
+
+#2). Enhanced Vegetation Index: EVI.
+class EVI(TemplateView):
+    template_name = 'index.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        figure = folium.Figure()
+        Map = geemap.Map()
+        Map.add_to(figure)
+        Map.set_center(-7.799, 53.484, 7)
+  #mouse position
+        fmtr = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
+        plugins.MousePosition(position='topright', separator=' | ', prefix="Mouse:",lat_formatter=fmtr, lng_formatter=fmtr).add_to(Map)
+       #Add GPS (Global Postion System)
+        plugins.LocateControl().add_to(Map)
+  #Add measure tool 
+        plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles', primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(Map)
+
+        try:
+                Map.center_object(boundary,17);
+                EVI = sentinel_2A.expression(
+                '2.5 * ((NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1))', {
+                        'NIR' : sentinel_2A.select('B8').divide(10000),
+                        'RED' : sentinel_2A.select('B4').divide(10000),
+                        'BLUE': sentinel_2A.select('B2').divide(10000)})
+                EVI_vispar={'min':-1, 'max':1, 'palette': ['yellow', 'brown','green']}#EVI visualization parameters
+                Map.addLayer(EVI,EVI_vispar,"EVI(Enhanced Vegetation Index)")#Add Enhanced Vegetation Index to the layers
+                
+                
+                vis_params = {
+                        'min': 0,
+                        'max': 1,
+                        'palette':['yellow', 'brown','green'],
+                }
+                colors = vis_params['palette']
+                vmin = vis_params['min']
+                vmax = vis_params['max']
+                Map.add_colorbar(vis_params,label='EVI')
+                
+                legend_dict = {
+                        'Non-crops': '1D26B3',
+                        'Unhealthly crops': 'F51294',
+                        'Moderately healthy crops': '020206',
+                        'Very healthy crops': '008000',}                
+                Map.add_legend(title="EVI Legend 🌿", legend_dict=legend_dict)
+                
+        except Exception as e:
+            # Handle the exception. You can customize this part based on how you want to display the error.
+            error_message = f"An error occurred:Please review the previous steps!!!"
+            context['error_message'] = error_message
+        else:
+                success_message = f"EVI Runned Successfully for Your Region"
+                context['success_message'] = success_message
+        Map.add_child(folium.LayerControl())
+
+        figure.render()
+        context['EVI'] = figure
+        context['form'] = DateForm()
+        context['data'] = fields.objects.all()
+        return context
+    def post(self, request, pk=''):
+ #MongoDB query
+        data = fields.objects.all()
+        query_name = request.POST.get('name', '')
+        if query_name:
+                query_results = fields.objects.filter(name=query_name)
+                global query_values
+                query_values = query_results.values_list('gps', flat=True)
+                print(query_values)
+                # return render(request, 'index.html', {'data': data, 'query_results': query_results, 'query_values': query_values})
+
+        form = DateForm(request.POST)
+        if form.is_valid():
+            start = form.cleaned_data['start_date']
+            end = form.cleaned_data['end_date']
+            global start_date
+            start_date = datetime.strftime(start, "%Y-%m-%d")
+            global end_date
+            end_date = datetime.strftime(end, "%Y-%m-%d")
+            print(start_date)
+            print(end_date)
+        context = self.get_context_data()
+        context['form'] = form
+        return render(request, self.template_name, context)
+
+    def get(self, request, pk=''):
+        form = DateForm()
+        context = self.get_context_data()
+        context['form'] = form
+        return render(request, self.template_name, context)
