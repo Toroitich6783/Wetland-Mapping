@@ -109,7 +109,7 @@ class MyField(TemplateView):
         plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles', primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(Map)
         try:
             global boundary
-            boundary = ee.FeatureCollection("projects/ee-mosongjnvscode/assets/ewaso")
+            boundary = ee.FeatureCollection("projects/ee-mosongjnvscode/assets/Mau_Forest")
             Map.center_object(boundary,9);
             Map.addLayer(boundary,{},"ROI")
 
@@ -126,7 +126,7 @@ class MyField(TemplateView):
             error_message = f"An error occurred:Please review the previous steps!!!!"
             context['error_message'] = error_message
         else:
-                sucess_message = f"Succefully loaded Ewaso  Nyiro ROI"
+                sucess_message = f"Succefully loaded Mau_Forest"
                 context['sucess_message'] = sucess_message
             
         
@@ -176,7 +176,7 @@ class MyField2(TemplateView):
         plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles', primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(Map)
         try:
             global boundary
-            boundary = ee.FeatureCollection("projects/ee-mosongjnvscode/assets/Siaya")
+            boundary = ee.FeatureCollection("projects/ee-mosongjnvscode/assets/Mk_Kenya_Forest")
             Map.center_object(boundary,9);
             Map.addLayer(boundary,{},"ROI")
             legend_dict = {
@@ -188,7 +188,7 @@ class MyField2(TemplateView):
             error_message = f"An error occurred:Please review the previous steps!!!!"
             context['error_message'] = error_message
         else:
-                sucess_message = f"Succefully loaded Siaya ROI"
+                sucess_message = f"Succefully loaded Mt Kenya Forest"
                 context['sucess_message'] = sucess_message
                 
 
@@ -236,7 +236,7 @@ class MyField3(TemplateView):
         plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles', primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(Map)
         try:
             global boundary
-            boundary = ee.FeatureCollection("projects/ee-mosongjnvscode/assets/Homa_Bay")
+            boundary = ee.FeatureCollection("projects/ee-mosongjnvscode/assets/Aberdare_Forest")
             Map.center_object(boundary,9);
             Map.addLayer(boundary,{},"ROI")
             legend_dict = {
@@ -248,7 +248,7 @@ class MyField3(TemplateView):
             error_message = f"An error occurred:Please review the previous steps!!!!"
             context['error_message'] = error_message
         else:
-                sucess_message = f"Succefully loaded  Homa Bay ROI"
+                sucess_message = f"Succefully loaded Aberdare Forest"
                 context['sucess_message'] = sucess_message
 
         Map.add_child(folium.LayerControl())
@@ -776,7 +776,7 @@ class NDVI(TemplateView):
             colors = vis_params['palette']
             vmin = vis_params['min']
             vmax = vis_params['max']
-            Map.add_colorbar(vis_params,label='Crop Health Analysis')
+            Map.add_colorbar(vis_params,label='Forest Cover')
             legend_dict = {
                     'Non-crops(0 to 0.18)': 'FF0000',
                     'Unhealthly crops(0.18 to 0.41)': 'A52A2A',

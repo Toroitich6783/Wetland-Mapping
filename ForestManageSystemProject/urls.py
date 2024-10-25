@@ -1,4 +1,4 @@
-"""WetlandsProject URL Configuration
+"""ForestManageSystemProject URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.1/topics/http/urls/
@@ -18,7 +18,7 @@ from django.urls import path
 
 
 #Import this three: Views, settings and static.
-from WetlandApp import views
+from ForestManageSystemApp import views
 from django.conf import settings
 from django.conf.urls.static import static
 

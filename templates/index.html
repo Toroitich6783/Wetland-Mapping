@@ -5,7 +5,7 @@
 <head>
 
     <meta charset="utf-8">
-    <title>WetLands Automation</title>
+    <title>Forest Management System</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -20,6 +20,10 @@
   label{
     color:black;
   }
+  /* .logo img {
+    height: 70px;
+    margin-right: 20px;
+} */
 </style>
     
     <!-- Google Web Fonts -->
@@ -103,7 +107,7 @@
                   <div class="scroll" style="font-size:12px">
 
                     <li>
-                        <a  style="font-size:18px" href="" class="dropdown-item"><i class="fa fa-fw fa-home fa-m-fix"></i> Wetlands Ecosystem</a>
+                        <a  style="font-size:18px" href="" class="dropdown-item"><i class="fa fa-fw fa-home fa-m-fix"></i> Forest Management System</a>
                     </li>
                     <li>
                         <hr class="sidebar-hr">
@@ -153,7 +157,13 @@
 
 
             <a class="navbar-brand navbar-brand-fa-fix" style="font-size: 14px;margin-left:11px; color:white;" href="/">
-                Wetlands<small style="margin-top: 3px;">,ATM<br>Jerry<br>Kevo <sup>TM</sup></small>
+                Forest Management System<small style="margin-top: 3px;">
+                  <div class="logo">
+      
+                    <img style="  height: 50px;
+    margin-right: 15px;" src="static/image/FMS.PNG" alt="Company Logo">
+                </div>
+                  </small>
             </a>
             <div class="nav-item dropdown">
               <li>
@@ -247,7 +257,7 @@
       </div>
 
 
-          <div class="navbar-nav">
+          <!-- <div class="navbar-nav">
               <div class="nav-item dropdown" style="margin-left: 20px;">
                   <a class="navbar-brand" id="menu-toggle" href="#">
                       <div style="margin-left: 12px; color: white">
@@ -260,7 +270,7 @@
                   
               <div class="dropdown-menu fade-up m-0">
         
-          </div>
+          </div> -->
       </div>
     </div>
 
@@ -268,9 +278,9 @@
 <!-- Navbar End -->
 
 
-<div class="titlesection">
+<!-- <div class="titlesection">
     <h3> <span class="mapsection">Satellite Imagery</span>  <span class="Analysissection">Imagery Analysis</span></h3> 
-  </div> 
+  </div>  -->
 
     <div class="maparea">
       {{map.html.render|safe}}
@@ -302,9 +312,12 @@
   <label style="color: white" for="Selectregion_dropdown">Field | Area</label><br>
   <select class="drop_select" onchange="location = this.value;">
         <option value="" selected disabled> Select Region/Field</option>
-        <option value="{% url 'MyField' %}">Ewaso Nyiro</option>
-        <option value="{% url 'MyField2' %}">Siaya</option>
-        <option value="{% url 'MyField3' %}">Homa Bay</option>
+        <option value="{% url 'MyField' %}">Mau Forest</option>
+        <option value="{% url 'MyField2' %}">Mt Kenya Forest</option>
+        <option value="{% url 'MyField3' %}">Aberdare Forest</option>
+        <option value="#">Mau Forest</option>
+        <option value="#">Mt Nyiro</option>
+        <option value="#">Karura Forest</option>
       </select>
       <br>
       <br>
@@ -359,6 +372,7 @@
   
   <!--Variable/spectral analysis start-->
       <label style="color: white"  for="spectral_dropdown">Variable Analysis Tools</label>
+      <br>
       <select class="drop_select" onchange="location = this.value;">
         <option value="" selected disabled>Variable Analysis Tools</option>
         <option value="{% url 'NDVI' %}">NDVI(Normalized Difference Vegetation Index)</option>
