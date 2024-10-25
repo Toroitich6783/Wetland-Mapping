@@ -359,8 +359,11 @@
   <select style="background: black; color:white" class="drop_select" onchange="location = this.value;">
     <option value="" >Select Satelite Data</option>
     <option value="{% url 'Sentinel_Imagery' %}">Sentinel 2 10m resolution/5 days</option>
-    <option value="{% url 'Sentinel_Imagery_1' %}">Sentinel 1 10m resolution/5 days</option>
     <option value="{% url 'Landsat8_Imagery' %}">Landsat 8 30m resolution/ 14 days</option>
+    <option value="{% url 'Sentinel_Imagery_1' %}">Chirps</option>
+    <option value="#">Global Forest Watch</option>
+    <option value="#">Digital Elevation Model</option>
+    <option value="#">Soils</option>
   </select>
 
 
@@ -376,11 +379,12 @@
       <select class="drop_select" onchange="location = this.value;">
         <option value="" selected disabled>Variable Analysis Tools</option>
         <option value="{% url 'NDVI' %}">NDVI(Normalized Difference Vegetation Index)</option>
-        <option value="{% url 'NDWI' %}">NDWI(Normalized Difference Water Index)</option>
-        <option value="{% url 'MNDWI' %}">MNDWI(Modified Normalized Difference Water Index)</option>
-        <option value="{% url 'JRC_Gloabal_Surface_Water' %}">JRC Gloabal Surface Water</option>
+        <option value="{% url 'NDWI' %}">EVI(Enhanced Vegetation Index)</option>
         <option value="{% url 'LULC' %}">LULC(LandCover & LandUse)</option>
-        <option value="{% url 'Wetlands' %}">Sample out Wetland</option>
+        <option value="{% url 'MNDWI' %}">LST(Land Surface Temperature)</option>
+        <option value="{% url 'JRC_Gloabal_Surface_Water' %}">Soils</option>
+        <option value="{% url 'LULC' %}">Rainfall</option>
+        <option style="color: red;" value="{% url 'Wetlands' %}">Run Model</option>
 
       </select>
     <br>
