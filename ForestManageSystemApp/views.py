@@ -913,8 +913,9 @@ class NDWI(TemplateView):
         context['form'] = form
         return render(request, self.template_name, context)
 
-#Modified Normalized Difference Water Index: MNDWI.
-class MNDWI(TemplateView):
+
+#Canopy Density.
+class Canopy_Denisty(TemplateView):
     template_name = 'index.html'
     
     def get_context_data(self, **kwargs):
@@ -933,70 +934,30 @@ class MNDWI(TemplateView):
             global boundary
             Map.center_object(boundary,9);
             Map.addLayer(boundary,{},"ROI")
+            #Canopy Density
+            fcd=ee.Image("projects/ee-luketoroitich19/assets/FCDSentinel2Forest2021")\
+            .clip(boundary)
+            vispargs = {'min':0, 'max':80, 'palette': ['ff4c16', 'ffd96c', '39a71d'] }
 
-            l8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_L2')
- # Function to cloud mask and generate MNDWI
-            def preprocess(image):
-                    qa = image.select('QA_PIXEL')
-                    dilated = 1 << 1
-                    cirrus = 1 << 2
-                    cloud = 1 << 3
-                    shadow = 1 << 4
-                    mask = qa.bitwiseAnd(dilated).eq(0) \
-                    .And(qa.bitwiseAnd(cirrus).eq(0)) \
-                    .And(qa.bitwiseAnd(cloud).eq(0)) \
-                    .And(qa.bitwiseAnd(shadow).eq(0))
+            Map.addLayer(fcd,vispargs,"Forest Canopy Density")
 
-    # Cloudfree image
-                    masked = image.select(['SR_B.*'], ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7']) \
-                    .updateMask(mask) \
-                    .multiply(0.0000275) \
-                    .add(-0.2)
-    # Band map
-                    bandMap = {
-                    'GREEN': masked.select('B3'),
-                    'SWIR1': masked.select('B6')
-                    }
-    # Generate MNDWI
-                    global mndwi
-                    mndwi = masked.expression('(GREEN - SWIR1) / (GREEN + SWIR1)', bandMap) \
-                    .rename('MNDWI')
-    # Return the MNDWI and cloudmasked image
-                    return image.select([]).addBands([masked, mndwi])
-    # Filter collection and create MNDWI
-            col = l8.filterBounds(boundary).filter(season).map(preprocess)
 
-    # Vis parameters
-            vis = { 'min': -1, 'max': 1, 'palette': ['0000ff', '00ffff', 'ffff00', 'ffffff'] }
-
-            # Median composite
-            median = col.median().clip(boundary)
-            Map.addLayer(median.select('MNDWI'), vis, 'MNDWI')
-            
-            vis_params = {
-                'min': 0,
-                'max': 1,
-                'palette':['0000ff', '00ffff', 'ffff00', 'ff0000', 'ffffff'],
-            }
-            colors = vis_params['palette']
-            vmin = vis_params['min']
-            vmax = vis_params['max']
-            Map.add_colorbar(vis_params,label='MNDWI Readings')
             legend_dict = {
-                    'Non-aqueous surfaces': 'ffffff',
-                'Moderate aqueous surfaces': '00ffff',
-                'Flooding, humidity': 'ffff00',
-                'Water surface': '0000ff',}
-            Map.add_legend(title="MNDWI Legend", legend_dict=legend_dict) 
-                    
-            
+                    'Open Forest': '39a71d',
+                    'Moderate Dense Forest': 'ffd96c',
+                    'Dense Forest': 'ff4c16',
+
+                    }
+            Map.add_legend(title="Canopy Density", legend_dict=legend_dict)
+                
+        
             
         except Exception as e:
             # Handle the exception. You can customize this part based on how you want to display the error.
             error_message = f"An error occurred:Please review the previous steps!!!!"
             context['error_message'] = error_message
         else:
-                sucess_message = f"Succefully loaded Ewaso  MNDWI ROI"
+                sucess_message = f"Succefully Estimated Canopy Density"
                 context['sucess_message'] = sucess_message
             
         
@@ -1008,94 +969,7 @@ class MNDWI(TemplateView):
         areaestimate1=Total_AreaSqKm.getInfo()
         
         context['areaestimate1'] = areaestimate1
-        context['MNDWI'] = figure
-        return context
-    def get(self, request, pk=''):
-        form = DateForm()
-        context = self.get_context_data()
-        context['form'] = form
-        return render(request, self.template_name, context)
-    
-    def post(self, request, pk=''):
-        form = DateForm(request.POST)
-        if form.is_valid():
-            start = form.cleaned_data['start_date']
-            end = form.cleaned_data['end_date']
-            global start_date
-            start_date = datetime.strftime(start, "%Y-%m-%d")
-            global end_date
-            end_date = datetime.strftime(end, "%Y-%m-%d")
-            print(start_date)
-            print(end_date)
-        context = self.get_context_data()
-        context['form'] = form
-        return render(request, self.template_name, context)
-
-#JRC Global Surface Water.
-class JRC_Gloabal_Surface_Water(TemplateView):
-    template_name = 'index.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        figure = folium.Figure()
-        Map = geemap.Map()
-        Map.add_to(figure)
-        #mouse position
-        fmtr = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
-        plugins.MousePosition(position='topright', separator=' | ', prefix="Mouse:",lat_formatter=fmtr, lng_formatter=fmtr).add_to(Map)
-        # GPS
-        plugins.LocateControl().add_to(Map)
-        #Add measure tool 
-        plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles', primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(Map)
-        try:
-            global boundary
-            Map.center_object(boundary,9);
-            Map.addLayer(boundary,{},"ROI")
-
-          #Extraction of Perment water from Global Surface Water(GSW)
-            blue_palette = ['0000FF']
-            jrcGSW = ee.Image("JRC/GSW1_2/GlobalSurfaceWater")
-            waterBodies = jrcGSW.select('occurrence').clip(boundary)
-            vis_waterBodies = {min:0, max:100, "palette": blue_palette}
-                    
-            Map.addLayer(**{
-                # mask waterBodies so as to not detect flood in the waterBodies.
-                # .divide(100) causes the opacity/transparency of the pixels to
-                # be set based on the waterBodies occurrence value.
-                
-                'ee_object': waterBodies.updateMask(waterBodies.divide(100)),\
-                'name': "Permanent water bodies (BLUE)", \
-                'vis_params': vis_waterBodies    
-            })
-            Map.addLayer( waterBodies.updateMask(waterBodies.divide(100)),vis_waterBodies,"Permanent water bodies (BLUE)")               
-            
-            legend_dict = {
-                    'JRC Permanent water bodies': '0000FF',
-                    'ROI Boundary': '000000',
-
-                    }
-            Map.add_legend(title=" Permanent Legend", legend_dict=legend_dict)
-                
-        
-            
-        except Exception as e:
-            # Handle the exception. You can customize this part based on how you want to display the error.
-            error_message = f"An error occurred:Please review the previous steps!!!!"
-            context['error_message'] = error_message
-        else:
-                sucess_message = f"Succefully Extracted Permanent Water"
-                context['sucess_message'] = sucess_message
-            
-        
-        Map.add_child(folium.LayerControl())
-        figure.render()
-        Total_studyArea = boundary.geometry().area()
-        Total_AreaSqKm = ee.Number(Total_studyArea).round()
-        print('Estimated Total areas', Total_AreaSqKm.getInfo())
-        areaestimate1=Total_AreaSqKm.getInfo()
-        
-        context['areaestimate1'] = areaestimate1
-        context['JRC_Gloabal_Surface_Water'] = figure
+        context['Canopy_Denisty'] = figure
         return context
     def get(self, request, pk=''):
         form = DateForm()
@@ -1276,132 +1150,6 @@ class LULC(TemplateView):
         context['form'] = form
         return render(request, self.template_name, context)
 
-#WetLands Detection.
-class Wetlands(TemplateView):
-    template_name = 'index.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        figure = folium.Figure()
-        Map = geemap.Map()
-        Map.add_to(figure)
-        #mouse position
-        fmtr = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
-        plugins.MousePosition(position='topright', separator=' | ', prefix="Mouse:",lat_formatter=fmtr, lng_formatter=fmtr).add_to(Map)
-        # GPS
-        plugins.LocateControl().add_to(Map)
-        #Add measure tool 
-        plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles', primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(Map)
-        try:
-            Map.center_object(boundary,9);
-            Map.addLayer(boundary,{},"ROI")
-            global season
-            season = ee.Filter.date(start_date,end_date);
-
-            Landsat8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_L2') \
-            .filter(season)
-                
-            
-            l8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_L2')
-            Map.addLayer(boundary,{},"ROI")
-
-            
-            # Function to cloud mask and generate MNDWI
-            def preprocess(image):
-                qa = image.select('QA_PIXEL')
-                dilated = 1 << 1
-                cirrus = 1 << 2
-                cloud = 1 << 3
-                shadow = 1 << 4
-                mask = qa.bitwiseAnd(dilated).eq(0) \
-                .And(qa.bitwiseAnd(cirrus).eq(0)) \
-                .And(qa.bitwiseAnd(cloud).eq(0)) \
-                .And(qa.bitwiseAnd(shadow).eq(0))
-
-                # Cloudfree image
-                global masked
-                masked = image.select(['SR_B.*'], ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7']) \
-                    .updateMask(mask) \
-                    .multiply(0.0000275) \
-                    .add(-0.2)
-
-                # Band map
-                bandMap = {
-                'GREEN': masked.select('B3'),
-                'SWIR1': masked.select('B6')
-                }
-
-                # Generate MNDWI
-                mndwi = masked.expression('(GREEN - SWIR1) / (GREEN + SWIR1)', bandMap) \
-                .rename('MNDWI')
-
-                # Return the MNDWI and cloudmasked image
-                return image.select([]).addBands([masked, mndwi])
-
-            # Filter collection and create MNDWI
-            col = l8.filterBounds(boundary).filter(season).map(preprocess)
-
-            # Vis
-            vis = { 'min': -1, 'max': 1, 'palette': ['red', 'white', 'blue'] }
-
-            # Median composite
-            median = col.median().clip(boundary)
-        
-
-            # Permanent water or river
-            permanent = median.select('MNDWI').gt(0.4)
-            Map.addLayer(permanent.selfMask(), { 'palette': 'blue' }, 'Permanent water or River')
-
-            # Maximum composite
-            max = col.reduce(ee.Reducer.percentile([98])).select('MNDWI_p98').clip(boundary)
-
-            # Wetland
-            wetland = max.gt(0).And(permanent.eq(0))
-            Map.addLayer(wetland.selfMask(), { 'palette': '008080' }, 'Wetland')
-            legend_dict = {
-                    'Wetland': '008080',
-                    'Permanent Water': '0000FF',
-                    }
-            Map.add_legend(title="Wetlands Legend", legend_dict=legend_dict)
-            
-        except Exception as e:
-            # Handle the exception. You can customize this part based on how you want to display the error.
-            error_message = f"An error occurred:Please review the previous steps"
-            context['error_message'] = error_message
-        else:
-                sucess_message = f"Succefully loaded Mapped Wetlands for your ROI"
-                context['sucess_message'] = sucess_message
-            
-        Map.add_child(folium.LayerControl())
-        figure.render()
-        Total_studyArea = boundary.geometry().area()
-        Total_AreaSqKm = ee.Number(Total_studyArea).round()
-        print('Estimated Total areas', Total_AreaSqKm.getInfo())
-        areaestimate1=Total_AreaSqKm.getInfo()
-        
-        context['areaestimate1'] = areaestimate1
-        context['Wetlands'] = figure
-        return context
-    def get(self, request, pk=''):
-        form = DateForm()
-        context = self.get_context_data()
-        context['form'] = form
-        return render(request, self.template_name, context)
-    
-    def post(self, request, pk=''):
-        form = DateForm(request.POST)
-        if form.is_valid():
-            start = form.cleaned_data['start_date']
-            end = form.cleaned_data['end_date']
-            global start_date
-            start_date = datetime.strftime(start, "%Y-%m-%d")
-            global end_date
-            end_date = datetime.strftime(end, "%Y-%m-%d")
-            print(start_date)
-            print(end_date)
-        context = self.get_context_data()
-        context['form'] = form
-        return render(request, self.template_name, context)
-
 
 #2). Enhanced Vegetation Index: EVI.
 class EVI(TemplateView):
@@ -1460,18 +1208,8 @@ class EVI(TemplateView):
         figure.render()
         context['EVI'] = figure
         context['form'] = DateForm()
-        context['data'] = fields.objects.all()
         return context
     def post(self, request, pk=''):
- #MongoDB query
-        data = fields.objects.all()
-        query_name = request.POST.get('name', '')
-        if query_name:
-                query_results = fields.objects.filter(name=query_name)
-                global query_values
-                query_values = query_results.values_list('gps', flat=True)
-                print(query_values)
-                # return render(request, 'index.html', {'data': data, 'query_results': query_results, 'query_values': query_values})
 
         form = DateForm(request.POST)
         if form.is_valid():
@@ -1489,6 +1227,88 @@ class EVI(TemplateView):
 
     def get(self, request, pk=''):
         form = DateForm()
+        context = self.get_context_data()
+        context['form'] = form
+        return render(request, self.template_name, context)
+
+#Normalized Difference Fraction Index: NDFI
+class NDFI(TemplateView):
+    template_name = 'index.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        figure = folium.Figure()
+        Map = geemap.Map()
+        Map.add_to(figure)
+        #mouse position
+        fmtr = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
+        plugins.MousePosition(position='topright', separator=' | ', prefix="Mouse:",lat_formatter=fmtr, lng_formatter=fmtr).add_to(Map)
+        # GPS
+        plugins.LocateControl().add_to(Map)
+        #Add measure tool 
+        plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles', primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(Map)
+        try:
+            global boundary
+            Map.center_object(boundary,9);
+            Map.addLayer(boundary,{},"ROI")
+
+            global NDVI
+            NDVI = sentinel_2A.normalizedDifference(['B8', 'B4'])#normalized difference is computed as (first − second) / (first + second).
+            ndvivis_parametres = {'min':0, 'max':1, 'palette': ['FFFFFF','FF0000','FFFF00','008000', '006400','00FFFF','0000FF'] }#NDVI visualization parameters
+            Map.addLayer(NDVI, ndvivis_parametres, 'NDVI(Normalized Difference Vegetation Index)')#Add Normalized Difference Vegetation Index to the layers
+        
+            vis_params = {
+                'min': 0,
+                'max': 1,
+                'palette':['FFFFFF','FF0000','FFFF00','008000', '006400','00FFFF','0000FF'],
+            }
+            colors = vis_params['palette']
+            vmin = vis_params['min']
+            vmax = vis_params['max']
+            Map.add_colorbar(vis_params,label='Forest Cover')
+            legend_dict = {
+                    'Non-crops(0 to 0.18)': 'FF0000',
+                    'Unhealthly crops(0.18 to 0.41)': 'A52A2A',
+                    'Moderately healthy crops(0.41 to 0.0.69)': 'FFFF00',
+                    'Very healthy crops(0.69 to 1.0)': '008000',}
+            Map.add_legend(title="NDVI Legend", legend_dict=legend_dict)  
+                    
+            Total_studyArea = boundary.geometry().area()
+            Total_AreaSqKm = ee.Number(Total_studyArea).round()
+            print('Estimated Total areas', Total_AreaSqKm.getInfo())
+        except Exception as e:
+            # Handle the exception. You can customize this part based on how you want to display the error.
+            error_message = f"An error occurred:Please review the previous steps!!!!"
+            context['error_message'] = error_message
+        else:
+                sucess_message = f"Succefully loaded NDVI for your ROI"
+                context['sucess_message'] = sucess_message
+            
+        
+        Map.add_child(folium.LayerControl())
+        figure.render()
+        areaestimate1=Total_AreaSqKm.getInfo()
+        
+        context['areaestimate1'] = areaestimate1
+        context['NDFI'] = figure
+        return context
+    def get(self, request, pk=''):
+        form = DateForm()
+        context = self.get_context_data()
+        context['form'] = form
+        return render(request, self.template_name, context)
+    
+    def post(self, request, pk=''):
+        form = DateForm(request.POST)
+        if form.is_valid():
+            start = form.cleaned_data['start_date']
+            end = form.cleaned_data['end_date']
+            global start_date
+            start_date = datetime.strftime(start, "%Y-%m-%d")
+            global end_date
+            end_date = datetime.strftime(end, "%Y-%m-%d")
+            print(start_date)
+            print(end_date)
         context = self.get_context_data()
         context['form'] = form
         return render(request, self.template_name, context)

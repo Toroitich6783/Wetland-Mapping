@@ -57,12 +57,12 @@
       {{ Landsat8_Imagery.header.render|safe }}
       {{ Wetlands.header.render|safe }}
       {{ NDVI.header.render|safe }}
-      {{ NDWI.header.render|safe }}
-      {{JRC_Gloabal_Surface_Water.header.render|safe}}
+      {{ EVI.header.render|safe }}
+      {{Canopy_Denisty.header.render|safe}}
       {{MyField2.header.render|safe}}
       {{MyField3.header.render|safe}}
-      {{ MNDWI.header.render|safe }}
       {{LULC.header.render|safe}}
+      {{NDFI.header.render|safe}}
 
 
      </script> 
@@ -294,12 +294,12 @@
       {{Landsat8_Imagery.html.render|safe}}
       {{Wetlands.html.render|safe}}
       {{NDVI.html.render|safe}}
-      {{NDWI.html.render|safe}}
-      {{JRC_Gloabal_Surface_Water.html.render|safe}}
+      {{EVI.html.render|safe}}
+      {{Canopy_Denisty.html.render|safe}}
       {{MyField2.html.render|safe}}
       {{MyField3.html.render|safe}}
-      {{MNDWI.html.render|safe}}
       {{LULC.html.render|safe}}
+      {{NDFI.html.render|safe}}
     
     </div>
     <h3 style="color: green; position:absolute;  z-index: 9999; margin-left:390px; margin-top:15px">{{ sucess_message }}</h3>
@@ -379,12 +379,10 @@
       <select class="drop_select" onchange="location = this.value;">
         <option value="" selected disabled>Variable Analysis Tools</option>
         <option value="{% url 'NDVI' %}">NDVI(Normalized Difference Vegetation Index)</option>
-        <option value="{% url 'NDWI' %}">EVI(Enhanced Vegetation Index)</option>
+        <option value="{% url 'EVI' %}">EVI(Enhanced Vegetation Index)</option>
         <option value="{% url 'LULC' %}">LULC(LandCover & LandUse)</option>
-        <option value="{% url 'MNDWI' %}">LST(Land Surface Temperature)</option>
-        <option value="{% url 'JRC_Gloabal_Surface_Water' %}">Soils</option>
-        <option value="{% url 'LULC' %}">Rainfall</option>
-        <option style="color: red;" value="{% url 'Wetlands' %}">Run Model</option>
+        <option value="{% url 'Canopy_Denisty' %}">Canopy Density</option>
+        <option style="color: red;" value="{% url 'NDFI' %}">Forest Degradation</option>
 
       </select>
     <br>
@@ -409,12 +407,12 @@
       {{ Landsat8_Imagery.script.render|safe }} 
       {{ Wetlands.script.render|safe }}  
       {{ NDVI.script.render|safe }}
-      {{ NDWI.script.render|safe }}  
-      {{JRC_Gloabal_Surface_Water.script.render|safe}}
+      {{ EVI.script.render|safe }}  
+      {{Canopy_Denisty.script.render|safe}}
       {{MyField2.script.render|safe}}
       {{MyField3.script.render|safe}}
-      {{ MNDWI.script.render|safe }}  
       {{LULC.script.render|safe}}
+      {{NDFI.script.render|safe}}
 
   
       

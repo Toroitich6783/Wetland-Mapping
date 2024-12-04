@@ -33,17 +33,15 @@ urlpatterns = [
     path('Sentinel_Imagery',views.Sentinel_Imagery.as_view(),name='Sentinel_Imagery'),
     path('Sentinel_Imagery_1',views.Sentinel_Imagery_1.as_view(),name='Sentinel_Imagery_1'),
     path('Landsat8_Imagery',views.Landsat8_Imagery.as_view(),name='Landsat8_Imagery'),
-    path('Wetlands',views.Wetlands.as_view(),name='Wetlands'),
     path('NDVI',views.NDVI.as_view(),name='NDVI'),
-    path('NDWI',views.NDWI.as_view(),name='NDWI'),
-    path('MNDWI',views.MNDWI.as_view(),name='MNDWI'),
-    path('JRC_Gloabal_Surface_Water',views.JRC_Gloabal_Surface_Water.as_view(),name="JRC_Gloabal_Surface_Water"),
+    path('EVI',views.EVI.as_view(),name='EVI'),
+    path('Canopy_Denisty',views.Canopy_Denisty.as_view(),name="Canopy_Denisty"),
     path('MyField2',views.MyField2.as_view(),name="MyField2"),
     path('MyField3',views.MyField3.as_view(),name="MyField3"),
     path('LULC',views.LULC.as_view(),name='LULC'),
+    path('NDFI',views.NDFI.as_view(),name="NDFI")
 
     
-
 ]
 
 
